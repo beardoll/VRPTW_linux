@@ -1,0 +1,649 @@
+============ Now Initialize the routing plan ===========
+----Sampling begins!
+----Now assessing the performance of each scenario
+----Initialization Finished! Now there are 17 cars dispatched!
+
+----Time 7.61577, Car #3 arrives at customer #80
+
+----Time 12.0416, Car #4 arrives at customer #81
+
+----Time 14.1421, Car #1 arrives at customer #55
+
+----Time 14.7648, Car #0 arrives at customer #82
+
+----Time 15.8114, Car #6 arrives at customer #61
+
+----Time 18.0278, Car #9 arrives at customer #56
+
+----Customer with id #13 is arriving...
+He is arranged to car #8
+
+----Time 19.2354, Car #2 arrives at customer #100
+
+----Time 20.6155, Car #10 arrives at customer #64
+
+----Time 25.4951, Car #12 arrives at customer #71
+
+----Time 25.8114, car #6 finished service in customer #61
+
+----Customer with id #93 is arriving...
+He is arranged to car #4
+
+----Time 26.9258, Car #13 arrives at customer #57
+
+----Time 32.5576, Car #5 arrives at customer #78
+
+----Time 33.541, Car #8 arrives at customer #9
+
+----Time 34.7033, car #2 finished service in customer #100
+
+----Time 35.4683, Car #11 arrives at customer #85
+
+----Time 35.9915, car #3 finished service in customer #80
+
+----Time 38.2099, Car #16 arrives at customer #87
+
+============ Now replan, the time slot is: 1============
+There are no hurry Customer
+There are no patient customer
+There are newly 0 customers get service
+There are still 0 customers waiting for promise
+----Sampling begins!
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+----Now assessing the performance of each scenario
+----Replan Finished! Now there are 17 cars working!
+
+----Time 40.3683, car #1 finished service in customer #55
+
+----Time 41.21, car #4 finished service in customer #81
+
+----Time 42.5576, car #5 finished service in customer #78
+
+----Time 43.541, car #8 finished service in customer #9
+
+----Time 43.8049, car #9 finished service in customer #56
+
+----Customer with id #94 is arriving...
+He is arranged to car #4
+
+----Customer with id #74 is arriving...
+He is arranged to car #16
+
+----Time 45.2769, Car #15 arrives at customer #25
+
+----Time 47.1699, Car #14 arrives at customer #58
+
+----Time 48.2099, car #16 finished service in customer #87
+
+----Time 48.483, Car #6 arrives at customer #38
+
+----Time 48.541, Car #8 arrives at customer #13
+
+----Customer with id #95 is arriving...
+He is arranged to car #9
+
+----Time 54.3525, Car #4 arrives at customer #94
+
+----Time 54.7232, Car #5 arrives at customer #79
+
+----Time 55.2769, car #15 finished service in customer #25
+
+----Time 55.3188, Car #2 arrives at customer #8
+
+----Time 57.1542, Car #16 arrives at customer #74
+
+----Time 57.1699, car #14 finished service in customer #58
+
+----Time 58.2769, Car #15 arrives at customer #23
+
+----Time 58.483, car #6 finished service in customer #38
+
+----Time 58.541, car #8 finished service in customer #13
+
+----Time 58.9778, Car #9 arrives at customer #95
+
+----Time 59.5777, Car #1 arrives at customer #6
+
+----Time 63.8681, Car #6 arrives at customer #40
+
+----Time 64.3525, car #4 finished service in customer #94
+
+----Time 64.7232, car #5 finished service in customer #79
+
+----Time 65.3188, car #2 finished service in customer #8
+
+----Time 65.6121, Car #8 arrives at customer #10
+
+----Time 67.1542, car #16 finished service in customer #74
+
+----Time 67.8, Car #14 arrives at customer #77
+
+----Time 68.3188, Car #2 arrives at customer #46
+
+----Time 68.9778, car #9 finished service in customer #95
+
+----Time 69.5924, car #1 finished service in customer #6
+
+----Time 70.0093, Car #4 arrives at customer #93
+
+----Time 73.8681, car #6 finished service in customer #40
+
+----Time 75.6121, car #8 finished service in customer #10
+
+----Time 76.8725, Car #1 arrives at customer #45
+
+----Time 77.6121, Car #8 arrives at customer #11
+
+----Time 77.8, car #14 finished service in customer #77
+
+----Time 78.3188, car #2 finished service in customer #46
+
+----Time 79.4541, Car #3 arrives at customer #32
+
+----Time 79.6991, Car #6 arrives at customer #37
+
+============ Now replan, the time slot is: 2============
+There are no hurry Customer
+There are no patient customer
+There are newly 0 customers get service
+There are still 0 customers waiting for promise
+----Sampling begins!
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+----Now assessing the performance of each scenario
+----Replan Finished! Now there are 17 cars working!
+
+----Time 80.0093, car #4 finished service in customer #93
+
+----Time 81.6881, Car #2 arrives at customer #4
+
+----Time 83.2787, Car #16 arrives at customer #97
+
+----Time 86.8725, car #1 finished service in customer #45
+
+----Time 87.5086, car #12 finished service in customer #71
+
+----Time 87.6121, car #8 finished service in customer #11
+
+----Time 88.2132, Car #9 arrives at customer #63
+
+----Time 89.4541, car #3 finished service in customer #32
+
+----Time 89.6991, car #6 finished service in customer #37
+
+----Time 90.4541, Car #3 arrives at customer #30
+
+----Time 92.6121, Car #8 arrives at customer #12
+
+----Time 92.6991, Car #6 arrives at customer #36
+
+----Time 92.7035, Car #1 arrives at customer #1
+
+----Time 93.2787, car #16 finished service in customer #97
+
+----Time 94.4656, Car #5 arrives at customer #69
+
+----Time 97.0094, Car #14 arrives at customer #24
+
+----Time 98.2132, car #9 finished service in customer #63
+
+----Time 98.6889, Car #12 arrives at customer #54
+
+----Time 99.6033, Car #16 arrives at customer #59
+
+----Time 100.454, car #3 finished service in customer #30
+
+----Time 100.518, Car #7 arrives at customer #99
+
+----Customer with id #5 is arriving...
+He is arranged to car #1
+
+----Time 101.104, Car #4 finished its task!
+
+----Customer with id #15 is arriving...
+He is arranged to car #8
+
+----Time 102.612, car #8 finished service in customer #12
+
+----Time 102.699, car #6 finished service in customer #36
+
+----Customer with id #3 is arriving...
+He is arranged to car #6
+
+----Time 149.259, Car #6 arrives at customer #3
+
+----Time 105.839, Car #3 arrives at customer #29
+
+----Time 107.009, car #14 finished service in customer #24
+
+----Customer with id #62 is arriving...
+He is arranged to car #9
+
+----Time 108.689, car #12 finished service in customer #54
+
+----Time 110.612, Car #8 arrives at customer #17
+
+----Customer with id #92 is arriving...
+He is arranged to car #10
+
+----Time 115.563, Car #9 arrives at customer #62
+
+----Time 115.839, car #3 finished service in customer #29
+
+----Time 117.78, Car #14 arrives at customer #48
+
+============ Now replan, the time slot is: 3============
+There are no hurry Customer
+There are no patient customer
+There are newly 0 customers get service
+There are still 0 customers waiting for promise
+----Sampling begins!
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+----Now assessing the performance of each scenario
+----Replan Finished! Now there are 16 cars working!
+
+----Time 120.612, car #8 finished service in customer #17
+
+----Time 120.839, Car #3 arrives at customer #27
+
+----Time 125.563, car #9 finished service in customer #62
+
+----Time 125.997, Car #8 arrives at customer #15
+
+----Time 127.78, car #14 finished service in customer #48
+
+----Time 128.689, Car #12 arrives at customer #42
+
+----Customer with id #98 is arriving...
+He is arranged to car #6
+
+----Time 130.839, car #3 finished service in customer #27
+
+----Time 132.563, Car #9 arrives at customer #50
+
+----Time 135.997, car #8 finished service in customer #15
+
+----Time 137.839, Car #3 arrives at customer #31
+
+----Time 138.689, car #12 finished service in customer #42
+
+----Customer with id #96 is arriving...
+He is arranged to car #9
+
+----Time 140.997, Car #8 arrives at customer #47
+
+----Time 142.563, car #9 finished service in customer #50
+
+----Time 143.689, Car #12 arrives at customer #43
+
+----Customer with id #51 is arriving...
+He is arranged to car #14
+
+----Time 159.259, car #6 finished service in customer #3
+
+----Time 153.48, Car #14 arrives at customer #51
+
+============ Now replan, the time slot is: 4============
+There are no hurry Customer
+There are no patient customer
+There are newly 0 customers get service
+There are still 0 customers waiting for promise
+----Sampling begins!
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+----Now assessing the performance of each scenario
+----Replan Finished! Now there are 16 cars working!
+
+----Time 161.259, Car #6 arrives at customer #5
+
+----Time 163.179, Car #9 arrives at customer #92
+
+----Time 163.48, car #14 finished service in customer #51
+
+----Customer with id #66 is arriving...
+He is arranged to car #10
+
+----Time 171.259, car #6 finished service in customer #5
+
+----Time 173.179, car #9 finished service in customer #92
+
+----Time 184.359, Car #9 arrives at customer #96
+
+----Customer with id #26 is arriving...
+He is arranged to car #14
+
+----Customer with id #84 is arriving...
+He is arranged to car #10
+
+----Customer with id #73 is arriving...
+He is arranged to car #8
+
+----Customer with id #60 is arriving...
+He is arranged to car #2
+
+----Customer with id #28 is arriving...
+He is arranged to car #14
+
+----Customer with id #75 is arriving...
+He is arranged to car #16
+
+----Customer with id #91 is arriving...
+He is arranged to car #5
+
+----Customer with id #70 is arriving...
+He is arranged to car #1
+
+----Customer with id #22 is arriving...
+He is arranged to car #13
+
+----Customer with id #65 is arriving...
+He will wait for replan!
+
+----Customer with id #83 is arriving...
+He is arranged to car #7
+
+----Customer with id #52 is arriving...
+He will wait for replan!
+
+----Customer with id #7 is arriving...
+He is arranged to car #2
+
+----Customer with id #68 is arriving...
+He will wait for replan!
+
+----Customer with id #53 is arriving...
+He is arranged to car #0
+
+----Customer with id #44 is arriving...
+He is arranged to car #12
+
+----Time 193.894, Car #14 arrives at customer #33
+
+----Time 194.359, car #9 finished service in customer #96
+
+----Time 198.554, Car #6 arrives at customer #88
+
+----Time 200, car #16 finished service in customer #59
+
+----Time 200, car #12 finished service in customer #43
+
+============ Now replan, the time slot is: 5============
+Replan for hurry customer, the number is 3
+SSALNS: we will use the new plan
+There are no patient customer
+There are newly 1 customers get service
+There are still 0 customers waiting for promise
+----Sampling begins!
+SSALNS: we will use the new plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we should use the origin plan
+SSALNS: we will use the new plan
+SSALNS: we should use the origin plan
+SSALNS: we will use the new plan
+SSALNS: we should use the origin plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we will use the new plan
+SSALNS: we should use the origin plan
+SSALNS: we should use the origin plan
+SSALNS: we will use the new plan
+----Now assessing the performance of each scenario
+----Replan Finished! Now there are 16 cars working!
+
+----Time 203, Car #3 arrives at customer #34
+
+----Time 202, Car #15 arrives at customer #21
+
+----Time 203, Car #12 arrives at customer #44
+
+----Time 203.894, car #14 finished service in customer #33
+
+----Time 205, Car #5 arrives at customer #98
+
+----Time 205.385, Car #8 arrives at customer #16
+
+----Time 207.071, Car #2 arrives at customer #7
+
+----Time 207.961, Car #9 arrives at customer #72
+
+----Time 208.554, car #6 finished service in customer #88
+
+----Time 210.44, Car #1 arrives at customer #2
+
+----Time 212, car #15 finished service in customer #21
+
+----Time 212.083, Car #7 arrives at customer #86
+
+----Time 212.649, Car #10 arrives at customer #91
+
+----Time 213, car #3 finished service in customer #34
+
+----Time 213, car #12 finished service in customer #44
+
+----Time 214.142, Car #13 arrives at customer #22
+
+----Time 215, car #5 finished service in customer #98
+
+----Time 215.074, Car #14 arrives at customer #26
+
+----Time 215.385, car #8 finished service in customer #16
+
+----Time 215.62, Car #0 arrives at customer #83
+
+----Time 215.811, Car #16 arrives at customer #75
+
+----Time 216, Car #15 arrives at customer #18
+
+----Time 217.071, car #2 finished service in customer #7
+
+----Time 217.774, Car #6 arrives at customer #60
+
+----Time 217.961, car #9 finished service in customer #72
+
+----Time 218.385, Car #12 arrives at customer #39
+
+----Time 218.439, Car #11 arrives at customer #89
+
+----Time 220.44, car #1 finished service in customer #2
+
+----Time 222.083, car #7 finished service in customer #86
+
+----Time 222.456, Car #8 arrives at customer #14
+
+----Time 222.649, car #10 finished service in customer #91
+
+----Time 224.142, car #13 finished service in customer #22
+
+----Time 225.074, car #14 finished service in customer #26
+
+----Time 225.62, car #0 finished service in customer #83
+
+----Time 225.811, car #16 finished service in customer #75
+
+----Time 226, car #15 finished service in customer #18
+
+----Time 226.142, Car #13 arrives at customer #20
+
+----Time 227.083, Car #5 arrives at customer #90
+
+----Time 227.774, car #6 finished service in customer #60
+
+----Time 228.074, Car #14 arrives at customer #28
+
+----Time 228.385, car #12 finished service in customer #39
+
+----Time 228.439, car #11 finished service in customer #89
+
+----Time 229.141, Car #9 arrives at customer #41
+
+----Time 229.294, Car #7 arrives at customer #52
+
+----Time 231.385, Car #15 arrives at customer #19
+
+----Time 232.456, car #8 finished service in customer #14
+
+----Time 232.832, Car #0 arrives at customer #66
+
+----Time 234.758, Car #1 arrives at customer #70
+
+----Time 235.136, Car #3 arrives at customer #67
+
+----Time 236.142, car #13 finished service in customer #20
+
+----Time 236.921, Car #2 arrives at customer #73
+
+----Time 236.987, Car #12 arrives at customer #35
+
+----Time 237.083, car #5 finished service in customer #90
+
+----Time 237.913, Car #10 arrives at customer #84
+
+----Time 238.074, car #14 finished service in customer #28
+
+----Time 238.339, Car #11 arrives at customer #76
+
+----Time 238.954, Car #6 arrives at customer #53
+
+----Time 239.141, car #9 finished service in customer #41
+
+----Time 239.142, Car #13 arrives at customer #49
+
+----Time 239.294, car #7 finished service in customer #52
+
+----Time 241.326, Car #5 finished its task!
+
+----Time 241.385, car #15 finished service in customer #19
+
+----Time 242.832, car #0 finished service in customer #66
+
+----Time 244.758, car #1 finished service in customer #70
+
+----Time 245.136, car #3 finished service in customer #67
+
+----Time 246.921, car #2 finished service in customer #73
+
+----Time 246.987, car #12 finished service in customer #35
+
+----Time 247.913, car #10 finished service in customer #84
+
+----Time 248.339, car #11 finished service in customer #76
+
+----Time 248.954, car #6 finished service in customer #53
+
+----Time 249.142, car #13 finished service in customer #49
+
+----Time 255.87, Car #0 finished its task!
+
+----Time 264.294, Car #7 finished its task!
+
+----Time 264.405, Car #1 finished its task!
+
+----Time 267.812, Car #8 finished its task!
+
+----Time 268.954, Car #6 finished its task!
+
+----Time 269.947, Car #9 finished its task!
+
+----Time 270.434, Car #3 finished its task!
+
+----Time 274.932, Car #10 finished its task!
+
+----Time 281.435, Car #15 finished its task!
+
+----Time 282.82, Car #16 finished its task!
+
+----Time 286.214, Car #2 finished its task!
+
+----Time 287.195, Car #13 finished its task!
+
+----Time 291.192, Car #12 finished its task!
+
+----Time 291.28, Car #11 finished its task!
+
+----Time 293.788, Car #14 finished its task!
+
+=============== END ================
+----OH!! Finished!
+----98 customers get served finally
+----2 customers get rejected finally
