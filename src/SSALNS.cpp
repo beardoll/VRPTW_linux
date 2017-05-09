@@ -5,7 +5,6 @@
 #include<cassert>
 #include "Matrix.h"
 #include<functional>
-#include<ctime>
 #include "TxtRecorder.h"
 #include<cmath>
 
@@ -34,6 +33,7 @@ SSALNS::SSALNS(vector<Customer*> waitCustomer, vector<Car*> originPlan, float ca
 			(*custPtr)->priority = 1;
 			newCar->insertAtRear(**custPtr);
 		}
+		deleteCustomerSet(custVec);
 		this->originPlan.push_back(newCar);
 	}
 };
@@ -63,9 +63,6 @@ void SSALNS::shawRemoval(vector<Car*> &originCarSet, vector<Customer*> &removedC
 	vector<pair<float, int> > R(customerAmount*customerAmount);     // ÏàËÆ¾ØÕó
 	float temp1;
 	vector<int> allIndex(customerAmount);  // 0~customerAmount-1
-	for(i=0; i<(int)originCarSet.size(); i++){
-		originCarSet[i]->getRoute().refreshArrivedTime();
-	}
 	for(i=0; i<customerAmount; i++){
 		allIndex[i] = i;
 		for(j=0; j<customerAmount; j++){
@@ -86,9 +83,19 @@ void SSALNS::shawRemoval(vector<Car*> &originCarSet, vector<Customer*> &removedC
 	}
 	int selectedIndex;           // ±»Ñ¡ÖĞµÄ½ÚµãÔÚallCustomerÖĞµÄÏÂ±ê
 	vector<int> removedIndexset; // ËùÓĞ±»ÒÆ³ıµÄ½ÚµãµÄÏÂ±ê¼¯ºÏ
-	selectedIndex = int(random(0,customerAmount));   // Ëæ»úÑ¡È¡Ò»¸ö½Úµã
+	selectedIndex = int(random(0,customerAmount));          // Ëæ»úÑ¡È¡Ò»¸ö½Úµã
+	selectedIndex = min(selectedIndex, customerAmount-1);   // avoid reaching the right side
 	removedIndexset.push_back(selectedIndex);
 	vector<int> indexsetInRoute(customerAmount-1);     // ÔÚÂ·¾¶ÖĞµÄ½ÚµãµÄÏÂ±ê¼¯ºÏ
+
+	/////////////// check if there have customers //////////////
+	if(customerAmount <= 0) {                                 //
+		cout << "==============================" << endl;     //
+		cout << "Currently no customers in plan" << endl;     //
+		cout << "==============================" << endl;     //
+	}                                                         //
+	////////////////////////////////////////////////////////////
+
 	set_difference(allIndex.begin(), allIndex.end(), removedIndexset.begin(), removedIndexset.end(), indexsetInRoute.begin());
 	while((int)removedIndexset.size() < q){  // ÒªÒÆ³ıµôÒ»¹²q¸ö½Úµã
 		vector<pair<float, int> > currentR(0);        // µ±Ç°Òª½øĞĞÅÅĞòµÄÏàËÆ¾ØÕó£¨ÏòÁ¿£©£¬Ö»°üº¬ÉĞÔÚÂ·¾¶ÖĞµÄ½Úµã
@@ -107,12 +114,33 @@ void SSALNS::shawRemoval(vector<Car*> &originCarSet, vector<Customer*> &removedC
 		}
 		int indexRemovedLen = removedIndexset.end() - removedIndexset.begin();  // µ±Ç°removedIndexsetµÄ³¤¶È
 		int randint = (int)random(0,indexRemovedLen);  // ²úÉúÒ»¸ö0-indexRemovedLenµÄËæ»úÊı
+		randint = min(randint, indexRemovedLen-1);     // avoid reaching the right side
 		selectedIndex = removedIndexset[randint];
 		sort(removedIndexset.begin(), removedIndexset.end());
 		vector<int>::iterator iterINT;
 		iterINT = set_difference(allIndex.begin(), allIndex.end(), removedIndexset.begin(), removedIndexset.end(), indexsetInRoute.begin());
 		indexsetInRoute.resize(iterINT - indexsetInRoute.begin());
 	}
+
+	///////////////////////// check repeated elements ///////////////////////
+	sort(removedIndexset.begin(), removedIndexset.end());                  //
+	if (removedIndexset.size() != 0) {                                     //
+		vector<int>::iterator iter99, iter100;                             //
+		iter99 = removedIndexset.begin();                                  //
+		iter100 = iter99 + 1;                                              //
+		for (; iter100 < removedIndexset.end(); iter99++, iter100++) {     //
+			if (*iter99 == *iter100) {                                     //
+				cout << endl;                                              //
+				cout << "========================" << endl;                //
+				cout << "Catch repeated elements!" << endl;                //
+				cout << "========================" << endl;                //
+				cout << endl;                                              //
+				break;                                                     //
+			}                                                              //
+		}                                                                  //
+	}                                                                      //
+	/////////////////////////////////////////////////////////////////////////
+
 	deleteCustomer(removedIndexset, customerNum, allCustomerInOrder, originCarSet, removedCustomer);
 	deleteCustomerSet(allCustomerInOrder);
 }
@@ -133,16 +161,46 @@ void SSALNS::randomRemoval(vector<Car*> &originCarSet, vector<Customer*> &remove
 	for(i=0; i<customerAmount; i++){
 		allIndex.push_back(i);
 	}
+
+	/////////////// check if there have customers //////////////
+	if(customerAmount <= 0) {                                 //
+		cout << "==============================" << endl;     //
+		cout << "Currently no customers in plan" << endl;     //
+		cout << "==============================" << endl;     //
+	}                                                         //
+	////////////////////////////////////////////////////////////
+
 	indexsetInRoute = allIndex;
 	for(i=0; i<q; i++){
 		int indexInRouteLen = indexsetInRoute.end() - indexsetInRoute.begin();  // ÉĞÔÚÂ·¾¶ÖĞµÄ½Úµã¸öÊı
-		int selectedIndex = int(random(0, indexInRouteLen));  // ÔÚindexsetInRouteÖĞµÄË÷Òı
+		int selectedIndex = int(random(0, indexInRouteLen));     // ÔÚindexsetInRouteÖĞµÄË÷Òı
+		selectedIndex = min(selectedIndex, indexInRouteLen-1);   // avoid reaching the right side
 		removedIndexset.push_back(indexsetInRoute[selectedIndex]);
 		sort(removedIndexset.begin(), removedIndexset.end());
 		vector<int>::iterator iterINT;
 		iterINT = set_difference(allIndex.begin(), allIndex.end(), removedIndexset.begin(), removedIndexset.end(), indexsetInRoute.begin());
 		indexsetInRoute.resize(iterINT - indexsetInRoute.begin());
 	}
+
+	///////////////////////// check repeated elements ///////////////////////
+	sort(removedIndexset.begin(), removedIndexset.end());                  //
+	if (removedIndexset.size() != 0) {                                     //
+		vector<int>::iterator iter99, iter100;                             //
+		iter99 = removedIndexset.begin();                                  //
+		iter100 = iter99 + 1;                                              //
+		for (; iter100 < removedIndexset.end(); iter99++, iter100++) {     //
+			if (*iter99 == *iter100) {                                     //
+				cout << endl;                                              //
+				cout << "========================" << endl;                //
+				cout << "Catch repeated elements!" << endl;                //
+				cout << "========================" << endl;                //
+				cout << endl;                                              //
+				break;                                                     //
+			}                                                              //
+		}                                                                  //
+	}                                                                      //
+	/////////////////////////////////////////////////////////////////////////
+
 	deleteCustomer(removedIndexset, customerNum, allCustomerInOrder, originCarSet, removedCustomer);
 	deleteCustomerSet(allCustomerInOrder);
 }
@@ -164,6 +222,15 @@ void SSALNS::worstRemoval(vector<Car*> &originCarSet, vector<Customer*> &removed
 	for(i=0; i<customerAmount; i++){
 		allIndex.push_back(i);
 	}
+
+	//////////////// check if there have customers /////////////
+	if(customerAmount <= 0) {                                 //
+		cout << "==============================" << endl;     //
+		cout << "Currently no customers in plan" << endl;     //
+		cout << "==============================" << endl;     //
+	}                                                         //
+	////////////////////////////////////////////////////////////
+
 	indexsetInRoute = allIndex;
 	while((int)removedIndexset.size() < q){
 		vector<pair<float, int> > reducedCost(customerAmount);  // ¸÷½ÚµãµÄÒÆ³ı´ú¼Û	
@@ -173,10 +240,6 @@ void SSALNS::worstRemoval(vector<Car*> &originCarSet, vector<Customer*> &removed
 		int indexInRouteLen = indexsetInRoute.end() - indexsetInRoute.begin();
 		int removedNum = static_cast<int>(max((float)floor(pow(y,p)*indexInRouteLen), 1.0f));
 		assert(removedNum <= indexInRouteLen);
-		//vector<int> selectedIndex = probSelection(reducedCost, removedNum);
-		//for(vector<int>::iterator intIter = selectedIndex.begin(); intIter < selectedIndex.end(); intIter++){
-		//	removedIndexset.push_back(reducedCost[*intIter].second);
-		//}
 		for(i=0; i<removedNum; i++) {
 			removedIndexset.push_back(reducedCost[i].second);
 		}
@@ -185,6 +248,26 @@ void SSALNS::worstRemoval(vector<Car*> &originCarSet, vector<Customer*> &removed
 		iterINT = set_difference(allIndex.begin(), allIndex.end(), removedIndexset.begin(), removedIndexset.end(), indexsetInRoute.begin());
 		indexsetInRoute.resize(iterINT - indexsetInRoute.begin());
 	}
+
+	///////////////////// check repeated elements ////////////////////////////
+	sort(removedIndexset.begin(), removedIndexset.end());                   //
+	if (removedIndexset.size() != 0) {                                      //
+		vector<int>::iterator iter99, iter100;                              //
+		iter99 = removedIndexset.begin();                                   //
+		iter100 = iter99 + 1;                                               //
+		for (; iter100 < removedIndexset.end(); iter99++, iter100++) {      //
+			if (*iter99 == *iter100) {                                      //
+				cout << endl;                                               //
+				cout << "========================" << endl;                 //
+				cout << "Catch repeated elements!" << endl;                 //
+				cout << "========================" << endl;                 //
+				cout << endl;                                               //
+				break;                                                      //
+			}                                                               //
+		}                                                                   //
+	}                                                                       //
+	//////////////////////////////////////////////////////////////////////////
+
 	deleteCustomer(removedIndexset, customerNum, allCustomerInOrder, originCarSet, removedCustomer);
 	deleteCustomerSet(allCustomerInOrder);
 }
@@ -195,6 +278,17 @@ void SSALNS::greedyInsert(vector<Car*> &removedCarSet, vector<Customer*> removed
 	// Èôµ±Ç°»õ³µÎŞ·¨ÈİÄÉËùÓĞµÄremovedCustomer£¬ÔòĞÂ½¨artificial car
 	int removedCustomerNum = removedCustomer.end() - removedCustomer.begin();  // ĞèÒª²åÈëµ½Â·¾¶ÖĞµÄ½ÚµãÊıÄ¿
 	int carNum = removedCarSet.end() - removedCarSet.begin();    // ³µÁ¾ÊıÄ¿
+
+	////////////////////// check empty car ////////////////////////
+	if (carNum == 0) {                                           //
+		cout << endl;                                            //
+		cout << "============================" << endl;          //
+		cout << "why carNum is equal to 0??" << endl;            //
+		cout << "============================" << endl;          //
+		cout << endl;                                            //
+	}                                                            //
+	///////////////////////////////////////////////////////////////
+
 	int newCarIndex = removedCarSet[carNum-1]->getCarIndex()+1;  // ĞÂ³µµÄÆğÊ¼±êºÅ
 	int i;
 	vector<int> alreadyInsertIndex(0);		   // ÒÑ¾­²åÈëµ½Â·¾¶ÖĞµÄ½ÚµãÏÂ±ê£¬Ïà¶ÔÓÚallIndex
@@ -205,9 +299,6 @@ void SSALNS::greedyInsert(vector<Car*> &removedCarSet, vector<Customer*> removed
 	vector<int> allIndex(0);   // ¶ÔremovedCustomer½øĞĞ±àºÅ,1,2,3,...
 	generateMatrix(allIndex, removedCarSet, removedCustomer, minInsertPerRoute,  minInsertPos, secondInsertPerRoute, secondInsertPos, 
 		noiseAmount, noiseAdd, DTpara, false);
-	//if(removedCustomerNum > 56) {
-	//	minInsertPerRoute.printMatrixAtCol(56);
-	//}
 	vector<int> restCustomerIndex = allIndex;  // Ê£ÏÂÃ»ÓĞ²åÈëµ½Â·¾¶ÖĞµÄ½ÚµãÏÂ±ê£¬Ïà¶ÔÓÚremovedCustomer
 	vector<pair<float, pair<int,int> > > minInsertPerRestCust(0);  // ¸÷¸öremovedcustomerµÄ×îĞ¡²åÈë´ú¼Û
 	                                                             // Ö»°üº¬Ã»ÓĞ²åÈëµ½Â·¾¶ÖĞµÄ½Úµã
@@ -258,6 +349,17 @@ void SSALNS::regretInsert(vector<Car*> &removedCarSet, vector<Customer*> removed
 	// °ÑremovedCustomer²åÈëµ½removedCarSetÖĞ
 	int removedCustomerNum = removedCustomer.end() - removedCustomer.begin();  // ĞèÒª²åÈëµ½Â·¾¶ÖĞµÄ½ÚµãÊıÄ¿
 	int carNum = removedCarSet.end() - removedCarSet.begin();    // ³µÁ¾ÊıÄ¿
+
+	////////////////////// check empty car ////////////////////////
+	if(carNum == 0) {                                            //
+		cout << endl;                                            //
+		cout << "============================" << endl;          //
+		cout << "why carNum is equal to 0??" << endl;            //
+		cout << "============================" << endl;          //
+		cout << endl;                                            //
+	}                                                            //
+	///////////////////////////////////////////////////////////////
+
 	int newCarIndex = removedCarSet[carNum - 1]->getCarIndex();  // ĞÂ³µ±àºÅ
 	int i;
 	vector<int> alreadyInsertIndex(0);		   // ÒÑ¾­²åÈëµ½Â·¾¶ÖĞµÄ½ÚµãÏÂ±ê£¬Ïà¶ÔÓÚallIndex
@@ -272,6 +374,27 @@ void SSALNS::regretInsert(vector<Car*> &removedCarSet, vector<Customer*> removed
 	vector<pair<float, pair<int,int> > > regretdiffPerRestCust(0);  // ¸÷¸öremovedcustomerµÄ×îĞ¡²åÈë´ú¼ÛÓë´ÎĞ¡²åÈë´ú¼ÛÖ®²î
 	                                                              // Ö»°üº¬Ã»ÓĞ²åÈëµ½Â·¾¶ÖĞµÄ½Úµã
 	                                                              // µÚÒ»¸öÕûÊıÊÇ½ÚµãÏÂ±ê£¬µÚ¶ş¸ö½ÚµãÊÇ³µÁ¾ÏÂ±ê
+	
+	
+	///////////////// check repeated elements //////////////////////
+	sort(allIndex.begin(), allIndex.end());                       //
+	if (allIndex.size() != 0) {                                   //
+		vector<int>::iterator iter99, iter100;                    //
+		iter99 = allIndex.begin();                                //
+		iter100 = iter99 + 1;                                     //
+		for (; iter100 < allIndex.end(); iter99++, iter100++) {   //
+			if (*iter99 == *iter100) {                            //
+				cout << endl;                                     //
+				cout << "========================" << endl;       //
+				cout << "Catch repeated elements!" << endl;       //
+				cout << "========================" << endl;       //
+				cout << endl;                                     //
+				break;                                            //
+			}                                                     //
+		}                                                         //
+	}                                                             //
+	////////////////////////////////////////////////////////////////
+
 	while((int)alreadyInsertIndex.size() < removedCustomerNum){
 		int selectedCustIndex;   // Ñ¡ÖĞµÄ¹Ë¿Í½Úµã±àºÅ
 		int selectedCarPos;      // Ñ¡ÖĞµÄ»õ³µÎ»ÖÃ
@@ -342,6 +465,17 @@ bool judgeFeasible(vector<Car*> carSet, int &infeasibleNum) {
 	vector<Car*>::iterator carIter;
 	infeasibleNum = 0;
 	for(carIter = carSet.begin(); carIter < carSet.end(); carIter++) {
+
+		////////////////////// check null pointer ///////////////////////
+		if ((*carIter) == NULL) {                                      //                         
+			cout << endl;                                              //
+			cout << "==========================" << endl;              //
+			cout << "Null cars are mixed in the carSet" << endl;       //
+			cout << "==========================" << endl;              //
+			cout << endl;                                              //
+		}                                                              //
+		/////////////////////////////////////////////////////////////////
+
 		if((*carIter)->judgeArtificial() == true) {
 			// ÅĞ¶Ïartificial³µÉÏÊÇ·ñÓĞpriorityÎª1µÄ½Úµã
 			vector<Customer*> tempCust = (*carIter)->getAllCustomer();
@@ -366,7 +500,6 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 	int originCarNum = (int)originPlan.size();   // ³õÊ¼ÓµÓĞµÄ»õ³µÊıÁ¿
 	vector<Customer*>::iterator custPtr;
 	vector<Car*>::iterator carIter;
-	srand(time(0));
 
 	// °Ñµ±Ç°ÓµÓĞµÄËùÓĞ¹Ë¿Í½Úµã·Åµ½allCustomerÖĞ
 	vector<Customer*> allCustomer;         // ËùÓĞµÄcustomer
@@ -379,8 +512,19 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 		}
 	}
 	for(custPtr = waitCustomer.begin(); custPtr < waitCustomer.end(); custPtr++) {
-		allCustomer.push_back(*custPtr);
+		Customer *temp = new Customer(**custPtr);
+		allCustomer.push_back(temp);
 	}
+
+	///////////////// check if there are no customers ///////////////
+	if (allCustomer.size() == 0) {                                 //
+		cout << endl;                                              //
+		cout << "========================" << endl;                //
+		cout << "In replan, but no customers!" << endl;            //
+		cout << "========================" << endl;                //
+		cout << endl;                                              //
+	}                                                              //
+	/////////////////////////////////////////////////////////////////
 
 	// ¼ÆËã±äÁ¿DT£¬ÒÀ´Î·ÅÈëvector DTparaÖĞ
 	float DTH1, DTH2, DTL1, DTL2;
@@ -405,24 +549,22 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 	DTpara[2] = DTL1;
 	DTpara[3] = DTL2;
 
-	// ÕâÊÇ¸ù¾İpriorityÎª1µÄ¹Ë¿Í²åÈëµ½artificial carÖĞµÄ¸öÊıÊ©¼ÓÏàÓ¦µÄ³Í·£
-	float Delta = maxd*1.5;
-
-
 	// ¹¹Ôìbase solution
-	vector<Car*> tempCarSet1;
-	Car *tcar = new Car(depot, depot, capacity, 100, true);
-	tempCarSet1.push_back(tcar);    // artificial carset, ´æ·Å´ı·şÎñµÄ¹Ë¿Í½Úµã
-	greedyInsert(tempCarSet1, waitCustomer, 0, false, DTpara); 
-	vector<Car*> baseCarSet = copyPlan(originPlan);   
-	for(carIter = tempCarSet1.begin(); carIter < tempCarSet1.end(); carIter++) {
-		Car *tcar = new Car(**carIter);
-		baseCarSet.push_back(tcar);
+	vector<Car*> baseCarSet = copyPlan(originPlan);
+	if (waitCustomer.size() != 0) {       // Ö»ÓĞµ±waitCustomer²»Îª¿ÕÊ±²ÅÓĞ"replan"µÄ¼ÛÖµ
+		vector<Car*> tempCarSet1;
+		Car *tcar = new Car(depot, depot, capacity, 100, true);
+		tempCarSet1.push_back(tcar);    // artificial carset, ´æ·Å´ı·şÎñµÄ¹Ë¿Í½Úµã
+		greedyInsert(tempCarSet1, waitCustomer, 0, false, DTpara);
+		for (carIter = tempCarSet1.begin(); carIter < tempCarSet1.end(); carIter++) {
+			Car *tcar = new Car(**carIter);
+			baseCarSet.push_back(tcar);
+		}
+		withdrawPlan(tempCarSet1);
 	}
-	withdrawPlan(tempCarSet1);
 	float baseCost = getCost(baseCarSet, DTpara);   // »ù×¼´ú¼Û£¬Èç¹ûµÃµ½µÄ½âÓÉÓÚÕâ¸ö½â£¬ÔòÒ»¶¨¿ÉĞĞ
-	                                                 // Ò»°ãÀ´Ëµ±ÈÕâ¸ö½â¸ü²îµÄ½âÊÇ²»¿ÉĞĞµÄ
-	vector<Car*> artificialCarSet(0);
+	                                                // Ò»°ãÀ´Ëµ±ÈÕâ¸ö½â¸ü²îµÄ½âÊÇ²»¿ÉĞĞµÄ
+
 	vector<Car*> currentCarSet(0);
 	for(carIter = originPlan.begin(); carIter < originPlan.end(); carIter++) {
 		// ±£ÁôÔ­ÓĞµÄ³µÁ¾£¬¼ÇÂ¼ÆäÆğµãÒÔ¼°ÖÕµãÒÔ¼°Ê£ÓàÈİÁ¿¡¢»ù×¼Ê±¼ä
@@ -474,7 +616,6 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 	float r = 0.1f;       // weight¸üĞÂËÙÂÊ
 
 	// ÆäÓàºËĞÄ²ÎÊı
-	// int maxIter = 10000; // ×ÜµÄµü´ú´ÎÊı
 	int segment = 100;   // Ã¿¸ôÒ»¸ösegment¸üĞÂremoveProb, removeWeightµÈ²ÎÊı
 	float w = 0.05f;      // ³õÊ¼ÎÂ¶ÈÉè¶¨ÓĞ¹Ø²ÎÊı
 	float T = w * abs(currentCost) / (float)log(2);   // ³õÊ¼ÎÂ¶È
@@ -486,7 +627,6 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 	float c = 0.9998f;    // ½µÎÂËÙÂÊ
 	vector<Customer*> removedCustomer(0);    // ±»ÒÆ³ıµÄ½Úµã
 	vector<Car*> tempCarSet = copyPlan(currentCarSet);      // ÔİÊ±´æ·Åµ±Ç°½â
-    bool destroy = false;   // ¿true¿¿¿¿¿¿¿¿¿¿¿¿
 
 	pair<bool, int> removalSelectTrend = make_pair(false, 0);
 	for(int iter=0; iter<maxIter; iter++){
@@ -532,6 +672,7 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 			while(sumation < removeSelection){
 				sumation += removeProb[++removeIndex];
 			}
+			removeIndex = min(removeIndex, removeNum-1);  // avoid reaching the right side
 		}
 		else{
 			removeIndex = removalSelectTrend.second;
@@ -544,6 +685,7 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 		while(sumation < insertSelection){
 			sumation += insertProb[++insertIndex];
 		}
+		insertIndex = min(insertIndex, insertNum-1);   // avoid reaching the right side
 		// ÒÔ¸ÅÂÊÑ¡ÔñÊÇ·ñÔö¼ÓÔëÉùÓ°Ïì
 		float noiseSelection = random(0,1);
 		bool noiseAdd = false;
@@ -560,16 +702,13 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 		removeFreq[removeIndex]++;
 		insertFreq[insertIndex]++;
 		noiseFreq[1-(int)noiseAdd]++;
-        int currentRemoveNum;
-        if(destroy == true) {
-            currentRemoveNum = customerAmount;
-            destroy = false;
-        } else {    
-		    int maxRemoveNum = min(100, static_cast<int>(floor(ksi*customerAmount)));  // ×î¶àÒÆ³ıÄÇÃ´¶à½Úµã
-		    int minRemoveNum = 4;  // ×îÉÙÒÆ³ıÄÇÃ´¶à½Úµã
-		    minRemoveNum = floor(0.4*customerAmount);
-		    currentRemoveNum = (int)floor(random(minRemoveNum, maxRemoveNum));  // µ±Ç°ÒªÒÆ³ıµÄ½ÚµãÊıÄ¿ 
-        }      
+
+		// decide the number to remove
+        int currentRemoveNum;   
+		int maxRemoveNum = min(100, static_cast<int>(floor(ksi*customerAmount)));  // ×î¶àÒÆ³ıÄÇÃ´¶à½Úµã
+		int minRemoveNum = 4;  // ×îÉÙÒÆ³ıÄÇÃ´¶à½Úµã
+		currentRemoveNum = (int)floor(random(minRemoveNum, maxRemoveNum));  // µ±Ç°ÒªÒÆ³ıµÄ½ÚµãÊıÄ¿ 
+    
 		deleteCustomerSet(removedCustomer);  // Çå¿ÕremovedCustomer
 		removedCustomer.resize(0);
 
@@ -614,6 +753,38 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 				break;
 			}
 		}
+
+		// ********** check what symptom is while "getCustomerNum(tempCarSet)!=customerAmount" ******** //
+		// if (getCustomerNum(tempCarSet) != customerAmount) {
+		// 	print_lck.lock();
+		// 	cout << "The remove heuristic is:" << removeIndex << endl;
+		// 	cout << "The insert heuristic is:" << insertIndex << endl;
+		// 	cout << "The customer retains in the plan is:" << endl;
+		// 	showAllCustomer(tempCarSet);
+		// 	cout << "The customer in pool originally is:" << endl;
+		// 	int count = 0;
+		// 	for (custPtr = allCustomer.begin(); custPtr < allCustomer.end(); custPtr++) {
+		// 		if (count % 8 == 0) {
+		// 			cout << endl;
+		// 		}
+		// 		cout << (*custPtr)->id << '\t';
+		// 		count++;
+		// 	}
+		// 	cout << endl;
+		// 	cout << "removed customer set is: " << endl;
+		// 	count = 0;
+		// 	for (custPtr = removedCustomer.begin(); custPtr < removedCustomer.end(); custPtr++) {
+		// 		if (count % 8 == 0) {
+		// 			cout << endl;
+		// 		}
+		// 		cout << (*custPtr)->id << '\t';
+		// 		count++;
+		// 	}
+		// 	cout << endl;
+		// 	print_lck.unlock();
+		// }
+		// ******************************************************************************************** //
+
 		assert(getCustomerNum(tempCarSet) == customerAmount);
 		// ÒÆ³ı¿ÕÂ·¾¶
 		removeNullRoute(tempCarSet, true);
@@ -634,6 +805,7 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 		// 2. µ±µÃµ½Ò»¸öÉĞÎ´±»½ÓÊÜ¹ıµÄ£¬¶øÇÒ¸üºÃµÄ½âÊ±
 		// 3. µ±µÃµ½Ò»¸öÉĞÎ´±»½ÓÊÜ¹ıµÄ½â£¬ËäÈ»Õâ¸ö½â±Èµ±Ç°½â²î£¬µ«ÊÇÕâ¸ö½â±»½ÓÊÜÁË
 		if(newCost < globalCost){  // Çé¿ö1
+			ksi = 0.4f;    // reduce the interuption of the solution
 			removeScore[removeIndex] += sigma1;
 			insertScore[insertIndex] += sigma1;
 			noiseScore[1-(int)noiseAdd] += sigma1;
@@ -650,14 +822,14 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 					noiseScore[1-(int)noiseAdd] += sigma2;
 				} else {      
 					if(accept == true) {       // Çé¿ö3
-                        if(newCost < baseCost) {
-                            // ¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
-                            destroy = true;
-                        } else {
+                        if(newCost > baseCost) {
 						    ksi = 0.8f;   // Èç¹ûµÃµ½ÁË¸ü²îµÄ½â£¬ÔòÔö¼Ó¶Ôµ±Ç°½âµÄÈÅ¶¯
-                        }
-						removalSelectTrend.first = true;   // ÕâÊ±Ç¿ÖÆÊ¹ÓÃrandom removalÀ´ÆÆ»µµ±Ç°µÄ½â
-						removalSelectTrend.second = 1;     // random removal
+							removalSelectTrend.first = true;   // ÕâÊ±Ç¿ÖÆÊ¹ÓÃrandom removalÀ´ÆÆ»µµ±Ç°µÄ½â
+							removalSelectTrend.second = 1;     // random removal
+						}
+						else {
+							ksi = 0.6f;   // using medium interuption factor
+						}
 						removeScore[removeIndex] += sigma3;
 						insertScore[insertIndex] += sigma3;
 						noiseScore[1-(int)noiseAdd] += sigma3;						
@@ -685,16 +857,20 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 	ostr.str("");
     print_lck.lock();
 	// unique_lock<mutex> lck(print_lck);
-	if(globalCost > baseCost) {
+    int infeasibleNum;
+
+	if(judgeFeasible(globalCarSet, infeasibleNum) == false) {
 		// Èç¹ûËÑË÷²»µ½¸üºÃµÄ½â£¬ÔòÎ¬³ÖÔ­À´µÄ½â
 		ostr << "SSALNS: we should use the origin plan" << endl;
 		TxtRecorder::addLine(ostr.str());
 		cout << ostr.str();
+		print_lck.unlock();
 		finalCarSet = copyPlan(originPlan);
 	} else {
 		ostr << "SSALNS: we will use the new plan" << endl;
 		TxtRecorder::addLine(ostr.str());
 		cout << ostr.str();
+		print_lck.unlock();
 		for (carIter = globalCarSet.begin(); carIter < globalCarSet.end(); carIter++) {
 			if ((*carIter)->judgeArtificial() == false) {
 				Car *tempCar = new Car(**carIter);
@@ -702,15 +878,18 @@ void SSALNS::run(vector<Car*> &finalCarSet, float &finalCost, mutex &print_lck){
 			}
 		}
 	}
-    print_lck.unlock();
+
 	//int infeasibleNum;
 	//bool mark2 = judgeFeasible(finalCarSet, infeasibleNum);
 	//cout << "Whether the solution is feasible? " << mark2 << endl;
+
 	finalCost = globalCost;
 	deleteCustomerSet(waitCustomer);
+	deleteCustomerSet(allCustomer);
 	withdrawPlan(originPlan);
 	withdrawPlan(baseCarSet);
 	withdrawPlan(tempCarSet);
+	withdrawPlan(globalCarSet);
 	hashTable.clear();
 }
 

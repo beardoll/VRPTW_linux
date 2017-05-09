@@ -11,6 +11,8 @@ SET(SRC_LIST main.cpp
         Simulator.cpp
         SSALNS.cpp
         Timer.cpp
+        LoadBench.cpp
+        SaveBench.cpp
         tinystr.cpp
         tinyxml.cpp
         tinyxmlerror.cpp

@@ -14,6 +14,9 @@ public:
 	//	outfile = ofstream(path, ofstream::app);
 	//}
 	static ofstream outfile;
+    static void changeFile(string newPath) {
+        outfile.open(newPath.c_str(), ofstream::trunc);
+    }
 	static void addLine(string str) {
 		outfile << str;
 	}

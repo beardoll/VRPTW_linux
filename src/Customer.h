@@ -19,9 +19,10 @@ struct Customer{
 	Customer *next;    // 指向下一个node节点的指针
 	Customer *front;   // 指向前一个node节点的指针
 	float timeProb[6]; // 在各个timeSlot下的分布概率
-	//bool operator< (Customer &item){
-	//	return this->id < item.id;
-	//}
+	int prop ;    // 顾客性质（0表示静态顾客，1表示动态顾客） 
+	bool operator< (Customer &item){
+	    return this->id < item.id;
+	}
 	//Customer operator= (Customer &item){
 	//	id = item.id;
 	//	type = item.type;

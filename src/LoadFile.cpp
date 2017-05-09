@@ -26,6 +26,7 @@ bool LoadFile::getData(vector<Customer*> &allCustomer, Customer &depot, float &c
 		nodeElem->QueryIntAttribute("id", &tempINT);  //把id放到temp1中，属性值读法
 		if(tempINT == 0){  // depot节点
 			depot.id = tempINT;
+			depot.prop = 0;
 			tempFLOAT = (float)atof(xElem->GetText());    // char转float
 			depot.x = tempFLOAT;
 			tempFLOAT = (float)atof(yElem->GetText());
@@ -37,7 +38,9 @@ bool LoadFile::getData(vector<Customer*> &allCustomer, Customer &depot, float &c
 			depot.priority = 0;
 		} else {  // 取货点
 			customer = new Customer;
-			customer->id = tempINT;        
+			customer->id = tempINT;  
+			nodeElem->QueryIntAttribute("property", 0);  //先设所有的顾客都是static的
+			customer->prop = tempINT;
 			tempFLOAT = (float)atof(xElem->GetText());    // char转float
 			customer->x = tempFLOAT;
 			tempFLOAT = (float)atof(yElem->GetText());

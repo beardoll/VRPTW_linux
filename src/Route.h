@@ -38,6 +38,7 @@ public:
 	float getLeftQuantity() {return this->leftQuantity;}    // 得到本车剩余容量（与车辆行驶情况相关）
 	float getCapacity() {return this->capacity;}            // 返回本车的车载量
 	float getLen(float DTpara[], bool artificial = false);  // 得到路径长度
+	float getOriginLen();    // 计算路径中单纯服务静态顾客节点所花费的路径代价
 	int getSize();           // 得到当前链表的大小
 	vector<float> getArrivedTime();      // 得到本车所有节点的arrivedTime
 	vector<Customer*> getAllCustomer();  // 得到路径中所有的顾客节点

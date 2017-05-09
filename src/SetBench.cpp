@@ -4,17 +4,29 @@
 #include<cmath>
 
 SetBench::SetBench(vector<Customer*> originCustomerSet, int timeSlotLen, int timeSlotNum, float dynamicism):
-	originCustomerSet(originCustomerSet), timeSlotLen(timeSlotLen), timeSlotNum(timeSlotNum), dynamicism(dynamicism){}// 构造函数
+	timeSlotLen(timeSlotLen), timeSlotNum(timeSlotNum), dynamicism(dynamicism){
+        this->originCustomerSet = copyCustomerSet(originCustomerSet);
+    }// 构造函数
 
 void SetBench::constructProbInfo(){ 
 	// 设置各个节点的概率信息
 	vector<int> BHsPos(0);                     // BHs的位置
 	int i;
+    // float temp[6] = {0.4, 0.2, 0.2, 0.1, 0.1, 0};
 	vector<Customer*>::iterator iter = originCustomerSet.begin();
 	for(iter; iter < originCustomerSet.end(); iter++) {
-		vector<float> dist = randomVec(timeSlotNum);   // 在各个slot提出需求的概率
+		// vector<float> dist = randomVec(timeSlotNum);   // 在各个slot提出需求的概率
+        // vector<float> dist(temp, temp+6);
+        int index = random(0, timeSlotNum-1);
         for(i=0; i<timeSlotNum; i++) {
-			(*iter)->timeProb[i] = dist[i];
+            if(i == index) {
+                (*iter)->timeProb[i] = 0.5;
+            } else if(i == timeSlotNum - 1) {
+                (*iter)->timeProb[i] = 0;
+            } else {
+                (*iter)->timeProb[i] = 0.5/(timeSlotNum - 1);
+            }
+			//(*iter)->timeProb[i] = dist[i];
 		}
 	}
 }
@@ -35,8 +47,10 @@ void SetBench::construct(vector<Customer*> &staticCustomerSet, vector<Customer*>
 		                                               // 这里默认originCustomerSet是按id升序排列
 		vector<int>::iterator iter2 = find(dynamicPos.begin(), dynamicPos.end(), count); // 寻找count是否是dynamicPos中的元素
 		if(iter2 != dynamicPos.end()) {   // 在dynamicPos集合中
+			(*iter)->prop = 1;
 			dynamicCustomerSet.push_back(*iter);
 		} else {  
+			(*iter)->prop = 0;
 			staticCustomerSet.push_back(*iter);
 		}
 		int selectSlot = roulette((*iter)->timeProb, timeSlotNum);   // 利用轮盘算法采样得出顾客可能提出需求的时间段

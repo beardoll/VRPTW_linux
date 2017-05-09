@@ -8,7 +8,8 @@
 
 using namespace std;
 
-ALNS::ALNS(vector<Customer*> allCustomer, Customer depot, float capacity):depot(depot), capacity(capacity){
+ALNS::ALNS(vector<Customer*> allCustomer, Customer depot, float capacity, int maxIter):depot(depot), capacity(capacity),
+	maxIter(maxIter){
 	this->allCustomer = copyCustomerSet(allCustomer);
 }
 
@@ -55,11 +56,13 @@ void ALNS::shawRemoval(vector<Car*> &originCarSet, vector<Customer*> &removedCus
 	}
 	int selectedIndex;           // ±»Ñ¡ÖĞµÄ½ÚµãÔÚallCustomerÖĞµÄÏÂ±ê
 	vector<int> removedIndexset; // ËùÓĞ±»ÒÆ³ıµÄ½ÚµãµÄÏÂ±ê¼¯ºÏ
-	selectedIndex = int(random(0,customerAmount));   // Ëæ»úÑ¡È¡Ò»¸ö½Úµã
+	selectedIndex = int(random(0,customerAmount));         // Ëæ»úÑ¡È¡Ò»¸ö½Úµã
+	selectedIndex = min(selectedIndex, customerAmount-1);  // avoid reaching the right side
 	removedIndexset.push_back(selectedIndex);
-	vector<int> indexsetInRoute(customerAmount-1);     // ÔÚÂ·¾¶ÖĞµÄ½ÚµãµÄÏÂ±ê¼¯ºÏ
+	vector<int> indexsetInRoute(customerAmount-1);    // ÔÚÂ·¾¶ÖĞµÄ½ÚµãµÄÏÂ±ê¼¯ºÏ
+
 	set_difference(allIndex.begin(), allIndex.end(), removedIndexset.begin(), removedIndexset.end(), indexsetInRoute.begin());
-	while((int)removedIndexset.size() < q){  // ÒªÒÆ³ıµôÒ»¹²q¸ö½Úµã
+	while((int)removedIndexset.size() < q){           // ÒªÒÆ³ıµôÒ»¹²q¸ö½Úµã
 		vector<pair<float, int> > currentR(0);        // µ±Ç°Òª½øĞĞÅÅĞòµÄÏàËÆ¾ØÕó£¨ÏòÁ¿£©£¬Ö»°üº¬ÉĞÔÚÂ·¾¶ÖĞµÄ½Úµã
 		int indexInRouteLen = indexsetInRoute.end() - indexsetInRoute.begin(); // ÔÚÂ·¾¶ÖĞµÄ½ÚµãµÄ¸öÊı
 		vector<pair<float, int> >::iterator iter1;
@@ -69,13 +72,14 @@ void ALNS::shawRemoval(vector<Car*> &originCarSet, vector<Customer*> &removedCus
 		}
 		sort(currentR.begin(), currentR.end(), ascendSort<float, int>);  // ÏàËÆĞÔ°´Ğ¡µ½´ó½øĞĞÅÅĞò
 		float y = random(0,1);  // ²úÉú0-1Ö®¼äµÄËæ»úÊı
-		int indexsetInRouteLen = indexsetInRoute.end() - indexsetInRoute.begin();  // indexsetInRouteµÄ³¤¶È
+		int indexsetInRouteLen = indexsetInRoute.end() - indexsetInRoute.begin();    // indexsetInRouteµÄ³¤¶È
 		int removeNum = max((int)floor(pow(y,p)*indexsetInRouteLen), 1);             // ±¾´ÎÒÆ³ıµÄ½ÚµãÊıÄ¿
 		for(i=0; i<removeNum ; i++){
 			removedIndexset.push_back(currentR[i].second);
 		}
 		int indexRemovedLen = removedIndexset.end() - removedIndexset.begin();  // µ±Ç°removedIndexsetµÄ³¤¶È
 		int randint = (int)random(0,indexRemovedLen);  // ²úÉúÒ»¸ö0-indexRemovedLenµÄËæ»úÊı
+		randint = min(randint, indexRemovedLen-1);     // avoid reaching the right side
 		selectedIndex = removedIndexset[randint];
 		sort(removedIndexset.begin(), removedIndexset.end());
 		vector<int>::iterator iterINT;
@@ -105,10 +109,12 @@ void ALNS::randomRemoval(vector<Car*> &originCarSet, vector<Customer*> &removedC
 	indexsetInRoute = allIndex;
 	for(i=0; i<q; i++){
 		int indexInRouteLen = indexsetInRoute.end() - indexsetInRoute.begin();  // ÉĞÔÚÂ·¾¶ÖĞµÄ½Úµã¸öÊı
-		int selectedIndex = int(random(0, indexInRouteLen));  // ÔÚindexsetInRouteÖĞµÄË÷Òı
+		int selectedIndex = int(random(0, indexInRouteLen));     // ÔÚindexsetInRouteÖĞµÄË÷Òı
+		selectedIndex = min(selectedIndex, indexInRouteLen-1);   // avoid reaching the right side
 		removedIndexset.push_back(indexsetInRoute[selectedIndex]);
 		sort(removedIndexset.begin(), removedIndexset.end());
 		vector<int>::iterator iterINT;
+		//indexsetInRoute.clear();
 		iterINT = set_difference(allIndex.begin(), allIndex.end(), removedIndexset.begin(), removedIndexset.end(), indexsetInRoute.begin());
 		indexsetInRoute.resize(iterINT - indexsetInRoute.begin());
 	}
@@ -204,7 +210,7 @@ void ALNS::greedyInsert(vector<Car*> &removedCarSet, vector<Customer*> removedCu
 			vector<int>::iterator iterINT;
 			iterINT = set_difference(allIndex.begin(), allIndex.end(), alreadyInsertIndex.begin(), alreadyInsertIndex.end(), restCustomerIndex.begin()); // ¸üĞÂrestCustomerIndex
 			restCustomerIndex.resize(iterINT-restCustomerIndex.begin());
-			minInsertPerRoute.addOneRow();   // Ôö¼ÓÒ»ĞĞ
+			minInsertPerRoute.addOneRow();    // Ôö¼ÓÒ»ĞĞ
 			minInsertPos.addOneRow();
 			secondInsertPerRoute.addOneRow();
 			secondInsertPos.addOneRow();
@@ -351,7 +357,6 @@ void ALNS::run(vector<Car*> &finalCarSet, float &finalCost){  // ÔËĞĞËã·¨£¬Ïàµ±Ó
 	float r = 0.1f;       // weight¸üĞÂËÙÂÊ
 
 	// ÆäÓàºËĞÄ²ÎÊı
-	int maxIter = 20000; // ×ÜµÄµü´ú´ÎÊı
 	int segment = 100;   // Ã¿¸ôÒ»¸ösegment¸üĞÂremoveProb, removeWeightµÈ²ÎÊı
 	float w = 0.05f;      // ³õÊ¼ÎÂ¶ÈÉè¶¨ÓĞ¹Ø²ÎÊı
 	float T = w * currentCost / (float)log(2);   // ³õÊ¼ÎÂ¶È
@@ -404,6 +409,8 @@ void ALNS::run(vector<Car*> &finalCarSet, float &finalCost){  // ÔËĞĞËã·¨£¬Ïàµ±Ó
 		while(sumation < removeSelection){
 			sumation += removeProb[++removeIndex];
 		}
+		removeIndex = min(removeIndex, removeNum-1);   // avoid reaching the right side
+
 		// ÒÔ¸ÅÂÊÑ¡Ôñinsert heurisitc
 		float insertSelection = random(0,1);
 		sumation = insertProb[0];
@@ -411,6 +418,8 @@ void ALNS::run(vector<Car*> &finalCarSet, float &finalCost){  // ÔËĞĞËã·¨£¬Ïàµ±Ó
 		while(sumation < insertSelection){
 			sumation += insertProb[++insertIndex];
 		}
+		insertIndex = min(insertIndex, insertNum-1);   // avoid reaching the right side
+
 		// ÒÔ¸ÅÂÊÑ¡ÔñÊÇ·ñÔö¼ÓÔëÉùÓ°Ïì
 		float noiseSelection = random(0,1);
 		bool noiseAdd = false;

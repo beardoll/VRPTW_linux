@@ -6,31 +6,48 @@
 bool ascendSortEvent(const EventElement &a, const EventElement &b){  // 递增排序
 	return a.time < b.time;
 }
-//靠靠
-EventElement& Timer::pop(){  // 弹出最近事件，顺带将其从eventList中删除掉
+
+EventElement Timer::pop(){  // 弹出最近事件，顺带将其从eventList中删除掉
 	assert(eventList.size() > 0);
 	vector<EventElement>::iterator iter = eventList.begin(); 
-	EventElement *newElement = new EventElement(*iter);
-	eventList.erase(iter);
-	return *newElement;
+    vector<EventElement>::iterator iter2;
+    EventElement newElement;
+    if(iter->carIndex == -1 && eventList.size() > 1) {
+    	// if there are some events happen at the same time
+    	// then "newTimeSlot" is of lowest priority
+    	// and other events have the same priority
+        iter2 = iter + 1;
+        if(iter2->time == iter->time) {
+            newElement = *iter2;
+            eventList.erase(iter2);
+        } else {
+            newElement = *iter;
+            eventList.erase(iter);
+        }
+    } else {
+        newElement = *iter;
+	    eventList.erase(iter);
+    }
+	return newElement;
 }
 
-Timer::Timer(vector<Customer*> staticCustomerSet, vector<Customer*> dynamicCustomerSet, int timeSlotLen, int timeSlotNum, float capacity, Customer depot): 
-	staticCustomerSet(staticCustomerSet), dynamicCustomerSet(dynamicCustomerSet), timeSlotLen(timeSlotLen), timeSlotNum(timeSlotNum), capacity(capacity), depot(depot)
+Timer::Timer(vector<Customer*> staticCustomerSet, vector<Customer*> dynamicCustomerSet, int timeSlotLen, int timeSlotNum, float capacity, Customer depot, int sampleRate, float iter_percentage, int predictMethod): 
+	staticCustomerSet(staticCustomerSet), dynamicCustomerSet(dynamicCustomerSet), timeSlotLen(timeSlotLen), timeSlotNum(timeSlotNum), capacity(capacity), depot(depot), 
+	sampleRate(sampleRate), iter_percentage(iter_percentage), predictMethod(predictMethod)
 {   
 	// 构造函数，输入参数为所有顾客，以及各时间段开始值
-	EventElement *newEvent;
+	EventElement newEvent;
 	int i;
 	for(i=0; i<timeSlotNum; i++) {  
 		// 增加“时间段到达”事件
-		newEvent = new EventElement(i*timeSlotLen, newTimeSlot, -1, -1);
-		eventList.push_back(*newEvent);
+		newEvent = EventElement(i*timeSlotLen, newTimeSlot, -1, -1);
+		eventList.push_back(newEvent);
 	}
 	vector<Customer*>::iterator iter = dynamicCustomerSet.begin();
 	for(iter; iter< dynamicCustomerSet.end(); iter++) {  
 		// 增加“新顾客到达事件”
-		newEvent = new EventElement((*iter)->startTime, newCustomer, -1, (*iter)->id);
-		eventList.push_back(*newEvent);
+		newEvent = EventElement((*iter)->startTime, newCustomer, -1, (*iter)->id);
+		eventList.push_back(newEvent);
 	}
 	sort(eventList.begin(), eventList.end(), ascendSortEvent);
 }
@@ -43,9 +60,12 @@ void Timer::addEventElement(EventElement &newEvent){
 
 void Timer::deleteEventElement(int carIndex){     
 	// 删除与carIndex相关的事件
+	if(carIndex == -1) return;    // "carIndex=1" indicates the "newTimeSlot" event, which is prohibited being deleted
 	vector<EventElement>::iterator iter = eventList.begin();
 	for(iter; iter<eventList.end(); ){
 		if((*iter).carIndex == carIndex) {
+            EventElement *p = &(*iter);
+            delete(p);
 			iter = eventList.erase(iter);
 			break;
 		} else {
@@ -92,8 +112,8 @@ void Timer::updateEventElement(EventElement &newEvent){
 }
 
 // enum EventType{newCustomer, carArrived, finishedService, carDepature, newTimeSlot, carOffWork};
-void Timer::run() {
-	Dispatcher disp(staticCustomerSet, dynamicCustomerSet, depot, capacity, timeSlotLen, timeSlotNum, 30);  // 调度中心初始化
+void Timer::run(vector<Car*> &finishedPlan, vector<Customer*> &rejectCustomer, float &travelDistance, float &addAveDistance) {
+	Dispatcher disp(staticCustomerSet, dynamicCustomerSet, depot, capacity, timeSlotLen, timeSlotNum, sampleRate, iter_percentage, predictMethod);  // 调度中心初始化
 	int slotIndex = 0;  // 第0个时间段
 	while(eventList.size() != 0) {
 		EventElement currentEvent = pop();  // 弹出最近事件
@@ -129,4 +149,28 @@ void Timer::run() {
 						 }
 		}
 	}
+    vector<Customer*> allCustomer;
+    vector<Customer*>::iterator custIter;
+    for(custIter = staticCustomerSet.begin(); custIter < staticCustomerSet.end(); custIter++) {
+       allCustomer.push_back(*custIter);
+    }
+    for(custIter = dynamicCustomerSet.begin(); custIter < dynamicCustomerSet.end(); custIter++) {
+       allCustomer.push_back(*custIter);
+    }
+    sort(allCustomer.begin(), allCustomer.end());
+    vector<int> rejectCustomerId = disp.getRejectCustomerId();
+    vector<int>::iterator intIter;
+    for(intIter = rejectCustomerId.begin(); intIter < rejectCustomerId.end(); intIter++) {
+        rejectCustomer.push_back(allCustomer[*intIter]);
+    }
+    finishedPlan = disp.getFinishedPlan();
+	vector<Car*>::iterator carIter;
+	travelDistance = 0;
+	addAveDistance = 0;
+	for(carIter = finishedPlan.begin(); carIter < finishedPlan.end(); carIter++) {
+		travelDistance += (*carIter)->getTravelDistance();
+		addAveDistance += (*carIter)->getAddDistance();
+	}
+	addAveDistance /= (dynamicCustomerSet.size() - rejectCustomer.size());  // 为服务动态顾客所额外增加的平均路长
+	disp.destroy();
 }

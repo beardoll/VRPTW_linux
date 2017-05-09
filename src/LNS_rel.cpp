@@ -61,12 +61,46 @@ void deleteCustomer(vector<int> removedIndexset, vector<int> customerNum, vector
 		int carIndex;
 		int currentIndex = removedIndexset[i];
 		vector<int>::iterator iter;
-		iter = upper_bound(customerNum.begin(), customerNum.end(), currentIndex);  // 第一个比currentIndex大的元素
+		iter = upper_bound(customerNum.begin(), customerNum.end(), currentIndex+1);   // 第一个比currentIndex大的元素
+
+		// notice that we want to choose the maximum figure which is not larger than "currentIndex+1"
+		// if there are several suitable figures, we just choose the earliest one
+		// because vehicles corresponding to the latter ones are "NULL" vehicles
+		bool mark1 = false;
+		while (!mark1) {
+			if (iter == customerNum.begin()) {  // it's the left most searching point
+				mark1 = true;
+			}
+			else {
+				if (*(iter - 1) != currentIndex + 1) {   // no consecutive figures equal to "currentIndex+1"
+					mark1 = true;
+				}
+				else {  // consecutive euqual values
+					iter = iter - 1;
+				}
+			}
+		}
+		///////////////////////////////////////////////////////////////////////////////
+
 		carIndex = iter - customerNum.begin();
 		bool mark = originCarSet[carIndex]->deleteCustomer(*allCustomerInOrder[currentIndex]);
-		if(mark == false) {
-			cout << "what??@@" << endl;
-		}
+
+		// ********* check if we delete customers not owned by the selected car ********** //
+		// if(mark == false) {
+		// 	cout << "what??@@" << endl;
+		// 	Car* temp = originCarSet[carIndex];
+		// 	vector<Customer*> tempCust = temp->getAllCustomer();
+		// 	cout << "Now we will show the customer in the operated car: " << endl;
+		// 	int count = 0;
+		// 	vector<Customer*>::iterator custIter;
+		// 	for(custIter = tempCust.begin(); custIter < tempCust.end(); custIter++) {
+		// 		cout << (*custIter)->id << '\t' << endl;
+		// 	}
+		// 	deleteCustomerSet(tempCust);
+		// 	cout << "However, we want to delete the customer with id: " << allCustomerInOrder[currentIndex]->id << endl;
+		// }
+		// ******************************************************************************* //
+
 		Customer *temp = new Customer;
 		*temp = *allCustomerInOrder[currentIndex];
 		removedCustomer.push_back(temp);
@@ -77,6 +111,8 @@ void computeReducedCost(vector<Car*> originCarSet, vector<int> indexsetInRoute, 
 						vector<pair<float, int> > &reducedCost, float DTpara[]){
 	// indexsetInRoute: 尚在路径中的节点编号
 	// removedIndexSet: 已被移除的节点编号
+	// Here, the elements in "indexsetInRoute" are the corresponding positions pf customers in "customerInOrder"
+	// Notice that "customerInOrder" is the sequential customers in sequential cars of the origin complete car set
 	int i;
 	int carNum = originCarSet.end() - originCarSet.begin();
 	vector<float> reducedCostInRoute(0); // 尚在路径中的各个节点的移除代价
@@ -120,7 +156,7 @@ void generateMatrix(vector<int> &allIndex, vector<Car*> &removedCarSet, vector<C
 			float penaltyPara = 0;
 			if(regularization = false) {
 				if(removedCarSet[i]->judgeArtificial() == false){  // 如果不是虚拟车
-					switch(removedCustomer[j]->priority) {  // 如果是虚拟车
+					switch(removedCustomer[j]->priority) {         // then give bonus
 					case 1:
 						penaltyPara = -DTH1;
 						break;
@@ -128,8 +164,8 @@ void generateMatrix(vector<int> &allIndex, vector<Car*> &removedCarSet, vector<C
 						penaltyPara = -DTL1;
 						break;
 					}
-				} else {   // 如果是虚拟车，则需要进行惩罚
-					switch(removedCustomer[j]->priority) {  // 如果是虚拟车
+				} else {     // 如果是虚拟车，则需要进行惩罚
+					switch(removedCustomer[j]->priority) {
 					case 1:
 						penaltyPara = DTH2;
 						break;
@@ -219,18 +255,16 @@ void removeNullRoute(vector<Car*> &originCarSet, bool mark){
 		if ((*iter)->getRoute().getSize() == 0){
 			if(mark == true) {
 				if ((*iter)->judgeArtificial() == true) { // 如果是空车而且是虚拟的车
-					temp = iter;
 					delete(*iter);
-					iter = originCarSet.erase(temp);
+					iter = originCarSet.erase(iter);
 				} else{
 					(*iter)->changeCarIndex(count++);
 					++iter;				
 				}
 			}
 			else {
-				temp = iter;
 				delete(*iter);
-				iter = originCarSet.erase(temp);
+				iter = originCarSet.erase(iter);
 			}
 		} else {
 			(*iter)->changeCarIndex(count++);
@@ -246,7 +280,7 @@ size_t codeForSolution(vector<Car*> originCarSet){  // 对每个解（多条路径）进行h
 	stringstream ss;
 	string allStr = "";
 	for(int i=0; i<(int)allCustomerInOrder.size(); i++){
-		ss.str("");  // 每次使用之前先清空ss
+		ss.str("");     // 每次使用之前先清空ss
 		int a = allCustomerInOrder[i]->id;
 		ss << a;
 		allStr += ss.str();
@@ -299,10 +333,34 @@ float getCost(vector<Car*> originCarSet, float DTpara[]){
 	return totalCost;
 }
 
-int getCustomerNum(vector<Car*> originCarSet){
+void showAllCustomer(vector<Car*> carSet) {
+    // show all customers in carSet (only id info)
+    vector<int> allCustomerId;
+    for(int i=0; i<(int)carSet.size(); i++) {
+        vector<Customer*> tempCust = carSet[i]->getAllCustomer();
+        vector<Customer*>::iterator custIter;
+        for(custIter = tempCust.begin(); custIter < tempCust.end(); custIter++) {
+            allCustomerId.push_back((*custIter)->id);
+        }
+		deleteCustomerSet(tempCust);
+    }
+    sort(allCustomerId.begin(), allCustomerId.end());
+    vector<int>::iterator intIter;
+	int count = 0;
+    for(intIter = allCustomerId.begin(); intIter < allCustomerId.end(); intIter++) {
+		if (count % 8 == 0) {
+			cout << endl;
+		}
+        cout << (*intIter) << '\t';
+		count++;
+    }
+    cout << endl;
+}
+
+int getCustomerNum(vector<Car*> originCarSet) {
 	// 获得路径集中顾客节点的数目
 	int customerNum = 0;
-	for(int i=0; i<(int)originCarSet.size(); i++){
+	for (int i = 0; i<(int)originCarSet.size(); i++) {
 		customerNum += originCarSet[i]->getRoute().getSize();
 	}
 	return customerNum;

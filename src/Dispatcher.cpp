@@ -6,12 +6,9 @@
 
 const float MAX_FLOAT = numeric_limits<float>::max();
 
-bool ascendSortForCustId(Customer* item1, Customer* item2) {
-	return item1->id < item2->id;
-}
-
 Dispatcher::Dispatcher(vector<Customer*> staticCustomerSet, vector<Customer*> dynamicCustomerSet, Customer depot, float capacity, int timeSlotLen, 
-					   int timeSlotNum, int samplingRate): depot(depot), capacity(capacity), timeSlotLen(timeSlotLen), timeSlotNum(timeSlotNum), samplingRate(samplingRate){
+					   int timeSlotNum, int samplingRate, float iter_percentage, int predictMethod): depot(depot), capacity(capacity), timeSlotLen(timeSlotLen), timeSlotNum(timeSlotNum), 
+						samplingRate(samplingRate), iter_percentage(iter_percentage), predictMethod(predictMethod){
 	int custNum = staticCustomerSet.end() - staticCustomerSet.begin();
 	custNum += dynamicCustomerSet.end() - dynamicCustomerSet.begin(); // 总顾客数
 	ServedCustomerId.reserve(custNum);     // 已经服务过的顾客id
@@ -36,12 +33,20 @@ Dispatcher::Dispatcher(vector<Customer*> staticCustomerSet, vector<Customer*> dy
 }
 
 
-void Dispatcher::carFinishedTask(int carIndex){       // 收车 
+void Dispatcher::destroy() {
+	deleteCustomerSet(allCustomer);
+}
+
+void Dispatcher::carFinishedTask(int carIndex){       
+	// 收车
+	// we will delete the car with id "carIndex" in the "currentPlan"
+	// and add it into "finishPlan" 
 	vector<Car*>::iterator carIter;
 	ostringstream ostr;
 	for(carIter = currentPlan.begin(); carIter < currentPlan.end(); carIter++) {
 		if((*carIter)->getCarIndex() == carIndex) {
 			Car *newCar = new Car(**carIter);
+			delete(*carIter);
 			currentPlan.erase(carIter);
 			finishedPlan.push_back(newCar);
 			break;
@@ -94,8 +99,9 @@ bool Dispatcher::checkFeasible(vector<Car*> carSet){
 				tempId.erase(intIter);
 			}
 		}
+		deleteCustomerSet(tempCust);
 	}
-	if(tempId.size() != 0) {
+	if(tempId.size() != 0) {   // if there are promiseCustomers excluded
 		return false;
 	} else {
 		return true;
@@ -124,7 +130,7 @@ vector<EventElement> Dispatcher::handleNewTimeSlot(int slotIndex){ // 新时间段开
 		ostr << "============ Now Initialize the routing plan ===========" << endl;
 		TxtRecorder::addLine(ostr.str());
 		cout << ostr.str();
-		Simulator smu(samplingRate, timeSlotLen, timeSlotNum, slotIndex, promiseCustomerSet, waitCustomerSet, dynamicCustomerSet, currentPlan);
+		Simulator smu(samplingRate, timeSlotLen, timeSlotNum, slotIndex, promiseCustomerSet, waitCustomerSet, dynamicCustomerSet, currentPlan, iter_percentage, predictMethod);
 		updatedPlan = smu.initialPlan(depot, capacity);
 		currentPlan = copyPlan(updatedPlan);
 		withdrawPlan(updatedPlan);
@@ -145,7 +151,9 @@ vector<EventElement> Dispatcher::handleNewTimeSlot(int slotIndex){ // 新时间段开
 		cout << ostr.str();
 		float currentTime = slotIndex * timeSlotLen;
 		for(custIdIter = waitCustomerId.begin(); custIdIter < waitCustomerId.end(); custIdIter++) {
-			waitCustomerSet.push_back(allCustomer[*custIdIter - 1]);
+			Customer *temp = new Customer;
+			*temp = *allCustomer[*custIdIter - 1];
+			waitCustomerSet.push_back(temp);
 		}
 		vector<Car*> futurePlan;
 		for(carIter = currentPlan.begin(); carIter < currentPlan.end(); carIter++) {
@@ -153,51 +161,89 @@ vector<EventElement> Dispatcher::handleNewTimeSlot(int slotIndex){ // 新时间段开
 			Car *tempCar = new Car((*carIter)->capturePartRoute(currentTime));
 			futurePlan.push_back(tempCar);
 		}
-		Simulator smu(samplingRate, timeSlotLen, timeSlotNum, slotIndex, promiseCustomerSet, waitCustomerSet, dynamicCustomerSet, futurePlan);
-		vector<int> newServedCustomerId;
-		vector<int> newAbandonedCustomerId;
-		vector<int> delayCustomerId;
-		updatedPlan = smu.replan(newServedCustomerId, newAbandonedCustomerId, delayCustomerId, capacity);
-		vector<Customer*>::iterator custIter;
+		if (currentPlan.size() != 0) {  // 有货车可派时，才进行replan
+			Simulator smu(samplingRate, timeSlotLen, timeSlotNum, slotIndex, promiseCustomerSet, waitCustomerSet, dynamicCustomerSet, futurePlan, iter_percentage, predictMethod);
+			vector<int> newServedCustomerId;
+			vector<int> newAbandonedCustomerId;
+			vector<int> delayCustomerId;
+			updatedPlan = smu.replan(newServedCustomerId, newAbandonedCustomerId, delayCustomerId, capacity);
+			withdrawPlan(futurePlan);
+			//updatedPlan = smu.no_replan();
+			vector<Customer*>::iterator custIter;
 
-		// 更新promiseCustomerId, rejectCustomerId以及waitCustomerId
-		vector<int>::iterator intIter;
-		vector<int> tempVec;
-		for(intIter = newServedCustomerId.begin(); intIter < newServedCustomerId.end(); intIter++) {
-			promisedCustomerId.push_back(*intIter);
-			tempVec.push_back(*intIter);
-		}
-		sort(promisedCustomerId.begin(), promisedCustomerId.end());
-		for(intIter = newAbandonedCustomerId.begin(); intIter < newAbandonedCustomerId.end(); intIter++) {
-			rejectCustomerId.push_back(*intIter);
-			tempVec.push_back(*intIter);
-		}
-
-		sort(rejectCustomerId.begin(), rejectCustomerId.end());
-		sort(waitCustomerId.begin(), waitCustomerId.end());
-		sort(tempVec.begin(), tempVec.end());
-		vector<int> tempVec2;
-		set_difference(waitCustomerId.begin(), waitCustomerId.end(), tempVec.begin(), tempVec.end(), tempVec2.begin());
-		waitCustomerId = tempVec2;
-
-		// 将变更后的future plan安插到currentPlan对应位置之后
-		int count = 0;
-		for(carIter = updatedPlan.begin(); carIter < updatedPlan.end(); carIter++) {
-			currentPlan[count]->replaceRoute(**carIter, currentTime);
-			EventElement newEvent;
-			if(currentPlan[count]->getState() == wait) {
-				// 如果货车原来处于wait状态，则需要将其发动
-				newEvent = currentPlan[count]->launchCar(currentTime);
-			} else {
-			    newEvent = currentPlan[count]->getCurrentAction(currentTime);
+			// 更新promiseCustomerId, rejectCustomerId以及waitCustomerId
+			vector<int>::iterator intIter;
+			vector<int> tempVec;
+			if(newServedCustomerId.size() != 0) {
+				for (intIter = newServedCustomerId.begin(); intIter < newServedCustomerId.end(); intIter++) {
+					promisedCustomerId.push_back(*intIter);
+					tempVec.push_back(*intIter);
+				}
+				sort(promisedCustomerId.begin(), promisedCustomerId.end());
 			}
-			newEventList.push_back(newEvent);
-			count++;
+
+			if(newAbandonedCustomerId.size() != 0) {
+				for (intIter = newAbandonedCustomerId.begin(); intIter < newAbandonedCustomerId.end(); intIter++) {
+					rejectCustomerId.push_back(*intIter);
+					tempVec.push_back(*intIter);
+				}
+
+				sort(rejectCustomerId.begin(), rejectCustomerId.end());
+			}
+
+			//////////////////////// check if all id in tempVec also in waitCustomerId /////////////////////////////
+			for(intIter = tempVec.begin(); intIter < tempVec.end(); intIter++) {                                  //
+				vector<int>::iterator iter99 = find(waitCustomerId.begin(), waitCustomerId.end(), *intIter);      //
+				if(iter99 == waitCustomerId.end()) {                                                              //
+					// not found       												   							  //
+					cout << endl;                                                                                 //
+					cout << "===================================================" << endl;                        //
+					cout << "tempVec not totally concluded in waitCustomerId!!!!" << endl;                        //
+					cout << "===================================================" << endl;   					  //
+					cout << endl;                     															  //
+					break;                                                                                        //
+				}                                                                                                 //
+			}                                                                                                     //                                                                                     
+			////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			if(tempVec.size() != 0) {
+				sort(waitCustomerId.begin(), waitCustomerId.end());
+				sort(tempVec.begin(), tempVec.end());
+				vector<int> tempVec2(20);
+
+				vector<int>::iterator iterxx = set_difference(waitCustomerId.begin(), waitCustomerId.end(), tempVec.begin(), tempVec.end(), tempVec2.begin());
+				tempVec2.resize(iterxx - tempVec2.begin());
+				waitCustomerId = tempVec2;
+			}
+
+			// 将变更后的future plan安插到currentPlan对应位置之后
+			int count = 0;
+			for (carIter = updatedPlan.begin(); carIter < updatedPlan.end(); carIter++) {
+				currentPlan[count]->replaceRoute(**carIter, currentTime);
+				EventElement newEvent;
+				if (currentPlan[count]->getState() == wait) {
+					// 如果货车原来处于wait状态，则需要将其发动
+					newEvent = currentPlan[count]->launchCar(currentTime);
+				}
+				else {
+					newEvent = currentPlan[count]->getCurrentAction(currentTime);
+				}
+				newEventList.push_back(newEvent);
+				count++;
+			}
+			withdrawPlan(updatedPlan);
+			deleteCustomerSet(waitCustomerSet);
+			ostr.str("");
+			ostr << "----Replan Finished! Now there are " << currentPlan.size() << " cars working!" << endl << endl;
+			TxtRecorder::addLine(ostr.str());
+			cout << ostr.str();
 		}
-		ostr.str("");
-		ostr << "----Replan Finished! Now there are " << currentPlan.size() << " cars working!" << endl << endl;
-		TxtRecorder::addLine(ostr.str());
-		cout << ostr.str();
+		else {
+			ostr.str("");
+			ostr << "----no car is applicable!!!" << endl << endl;
+			TxtRecorder::addLine(ostr.str());
+			cout << ostr.str();
+		}
 	}
 	return newEventList;
 } 
@@ -230,6 +276,7 @@ EventElement Dispatcher::handleNewCustomer(int slotIndex, const Customer& newCus
 	EventElement newEvent;
 	if(minInsertCost == MAX_FLOAT) {
 		// 没有可行插入点
+        bool ma = true; 
 		if(newCustomer.tolerantTime < slotIndex*timeSlotLen) { 
 			// 等不到replan，则reject
 			ostr.str("");
@@ -253,7 +300,7 @@ EventElement Dispatcher::handleNewCustomer(int slotIndex, const Customer& newCus
 		int selectedCarPos = insertPos.first;
 		Customer selectedCustomer = insertPos.second;
 		currentPlan[selectedCarPos]->insertAfter(selectedCustomer, newCustomer);
-		if(currentPlan[selectedCarPos]->getState() == wait) {
+		if(currentPlan[selectedCarPos]->getState() == wait) {  // if the car stays asleep
 			newEvent = currentPlan[selectedCarPos]->launchCar(currentTime);
 		} else {
 			newEvent = currentPlan[selectedCarPos]->getCurrentAction(currentTime);

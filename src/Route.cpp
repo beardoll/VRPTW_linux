@@ -5,7 +5,6 @@
 #include<vector>
 #include<cmath>
 #include<limits>
-#include<ctime>
 #include<cstdlib>
 #include<algorithm>
 
@@ -199,6 +198,16 @@ bool Route::deleteNode(Customer &item){
 		return false;
 	}
 	Customer* temp1 = current->next;
+
+	// ***** check if there are some abnormity ***** //
+	if (current == NULL) {
+		cout << "Why current node is NULL?!!" << endl;
+	}
+	if (temp1 == NULL) {
+		cout << "Current Ptr has reached the rear!!" << endl;
+	}
+	// ********************************************* //
+
 	while(temp1!=rear) {
 		if(temp1->id == item.id) {  // 如果找到，temp1指向当前节点，temp2->next=temp1;
 			break;
@@ -312,6 +321,30 @@ float Route::getLen(float DTpara[], bool artificial){   // 得到路径长度
 		return len;		
 	}
 }
+
+float Route::getOriginLen() {  
+	// 得到服务静态节点的路径代价
+	// 注意，以property标识顾客属性，当property为0时表示静态，为1表示动态
+	Customer* front = head;         // 搜索的起始节点
+	Customer* back = front->next;   // 下一个节点
+	float originLen = 0;
+	while(back != NULL) {
+		// 首尾节点，即仓库，在此计算范围之内
+		if(back->prop != 0) {
+			back = back->next;
+		} 
+		else {
+			originLen += sqrt(pow(front->x - back->x, 2) + pow(front->y - back->y, 2));
+			front = back;
+			back = back->next;
+		}
+		//originLen += sqrt(pow(front->x - back->x, 2) + pow(front->y - back->y, 2));
+		//front = back;
+		//back = back->next;
+	}
+	return originLen;
+}
+
 
 vector<float> Route::getArrivedTime(){     // 得到本车所有节点的arrivedTime
 	return arrivedTime;

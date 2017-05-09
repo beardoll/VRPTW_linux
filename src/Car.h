@@ -11,7 +11,7 @@ class Car{
 public:
 	Car(Customer &headNode, Customer &rearNode, float capacity, int index, bool artificial = false);  // 构造函数
 	~Car();          // 析构函数
-	Car(Car &item);  //复制构造函数
+	Car(const Car& item);  //复制构造函数
 	Car& operator= (Car &item);       // 重载赋值操作
 
 	// 获取货车属性
@@ -21,7 +21,9 @@ public:
 	float getCapacity() {return route.getCapacity();}    // 返回车容量
 	vector<Customer*> getAllCustomer() { return route.getAllCustomer();}
 	int getCustomerNum(){ return route.getSize();}       // 获取顾客数目
-	Car& getNullCar();  // 将所有的顾客删除掉，返回一辆空车
+	Car getNullCar();  // 将所有的顾客删除掉，返回一辆空车
+	float getTravelDistance() { return travelDistance; } // 获取货车走过的总路长
+	float getAddDistance() {return travelDistance - route.getOriginLen(); } // 获取货车为服务动态顾客的附加路长
 
 	// 更改货车属性
 	void changeCarIndex(int newIndex) {carIndex = newIndex;}    // 更改车辆编号
@@ -45,7 +47,7 @@ public:
 
 	// part Route操作
 	void replaceRoute(Car &newCar, float currentTime);      // 将newCar的路径插入到当前货车路径的current节点之后
-	Car& capturePartRoute(float time);    // 抓取route的current指针之后的路径，并且返回一辆车
+	Car capturePartRoute(float time);    // 抓取route的current指针之后的路径，并且返回一辆车
 
 	// state相关
 	void updateState(float time);        // 更新状态
@@ -64,6 +66,7 @@ private:
 	float nextArriveTime;        // 下一站的到达时间
 	bool artificial;  // 为true表示是虚构的车辆，false表示真实的车辆
 	int carIndex;     // 货车编号
+	float travelDistance;   // 车辆行驶的总里程
 	vector<int> posVec;   // 当移除了无效节点后，记录路径中节点在validCustomerId的位置 
 };
 

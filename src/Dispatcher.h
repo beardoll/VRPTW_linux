@@ -9,17 +9,20 @@
 class Dispatcher{   // 调度中心类
 public:
 	Dispatcher(vector<Customer*> staticCustomerSet, vector<Customer*> dynamicCustomerSet, Customer depot, float capacity, int timeSlotLen, 
-		int timeSlotNum, int samplingRate);  // 构造函数
+		int timeSlotNum, int samplingRate, float iter_percentage, int predictMethod);  // 构造函数
 	~Dispatcher(){}; // 析构函数
+	void destroy();  // 销毁Dispatcher
 	EventElement handleNewCustomer(int slotIndex, const Customer& newCustomer);  // 处理新顾客到达
 	EventElement handleCarArrived(float time, int carIndex);            // 处理货车到达事件
 	EventElement handleFinishedService(float time, int carIndex);       // 处理货车完成服务事件
 	// EventElement handleDepature(float time, int carIndex);              // 处理货车出发事件
 	vector<EventElement> handleNewTimeSlot(int slotIndex); // 新时间段开始 
-	Car& searchCar(int carIndex);   // 根据货车编号搜索货车
+	//Car& searchCar(int carIndex);   // 根据货车编号搜索货车
 	void carFinishedTask(int carIndex);       // 收车 
 	bool checkFeasible(vector<Car*> carSet);
-	bool checkTimeConstraint();
+	//bool checkTimeConstraint();
+    vector<int> getRejectCustomerId() {return rejectCustomerId; }
+    vector<Car*> getFinishedPlan() {return finishedPlan; }
 private:
 	vector<Customer*> allCustomer;    // 所有的顾客
 	vector<int> dynamicCustomerId;    // 动态到达的顾客的id
@@ -34,6 +37,8 @@ private:
 	int timeSlotLen;   // 时间段的长度
 	int timeSlotNum;   // 时间段的个数
 	int samplingRate;    // 采样率
+	float iter_percentage;
+	int predictMethod;
 };
 
 #endif

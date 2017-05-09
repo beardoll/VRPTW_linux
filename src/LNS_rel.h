@@ -30,7 +30,9 @@ template<class T> inline void setZero(T* p, int size);
 inline void setOne(float* p, int size);
 inline void updateWeight(int *freq, float *weight, int *score, float r, int num);
 inline void updateProb(float *removeProb, float *removeWeight, int removeNum);
+void showAllCustomer(vector<Car*> carSet);
 int getCustomerNum(vector<Car*> originCarSet);
+//int getCustomerNum(vector<Car*> originCarSet, vector<Car*> refCarSet, bool mark = false);
 bool carSetEqual(vector<Car*> carSet1, vector<Car*> carSet2);
 bool customerSetEqual(vector<Customer*>c1, vector<Customer*>c2);
 

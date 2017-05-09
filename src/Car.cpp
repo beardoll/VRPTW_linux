@@ -7,19 +7,21 @@ Car::Car(Customer &headNode, Customer &rearNode, float capacity, int index, bool
 	state = wait;
 	nearestDepatureTime = 0;
 	nextArriveTime = 0;
+	travelDistance = 0;
 }
 
 Car::~Car(){  // 内嵌对象的析构函数会被调用，不用在此处delete route
 
 }
 
-Car::Car(Car &item):route(item.route), artificial(item.artificial){  //复制构造函数
+Car::Car(const Car& item):route(item.route), artificial(item.artificial){  //复制构造函数
 	this->state = item.state;
 	this->carIndex = item.carIndex;
 	this->state = item.state;
 	this->artificial = item.artificial;
 	this->nearestDepatureTime = item.nearestDepatureTime;
 	this->nextArriveTime = item.nextArriveTime;
+	this->travelDistance = item.travelDistance;
 }
 
 
@@ -30,15 +32,16 @@ Car& Car::operator= (Car &item){ // 重载赋值操作
 	this->artificial = item.artificial;
 	this->nearestDepatureTime = item.nearestDepatureTime;
 	this->nextArriveTime = item.nextArriveTime;
+	this->travelDistance = item.travelDistance;
 	return *this;
 }
 
 
 //================ 得到货车属性 =================//
-Car& Car::getNullCar(){
+Car Car::getNullCar(){
 	float leftCapacity = route.getLeftQuantity();
-	Car* newCar = new Car(getHeadNode(), getRearNode(), leftCapacity, carIndex);
-	return *newCar;
+	Car newCar(getHeadNode(), getRearNode(), leftCapacity, carIndex);
+	return newCar;
 }
 
 
@@ -123,7 +126,7 @@ void Car::replaceRoute(Car &newCar, float currentTime){
 	}
 }
 
-Car& Car::capturePartRoute(float time){   
+Car Car::capturePartRoute(float time){   
 	// 抓取route的current指针之后的路径，并且返回一辆车
 	// time为抓取的时间
 	updateState(time);    // 先将状态更新
@@ -180,15 +183,15 @@ Car& Car::capturePartRoute(float time){
 	float leftQuantity = route.getLeftQuantity();  // 货车剩余容量
 	float capacity = route.getCapacity();
 	Customer depot = route.getRearNode();          // 任何一辆车，终点都是depot
-	Car* newCar = new Car(*startNode, depot, leftQuantity, carIndex, false);
+	Car newCar(*startNode, depot, leftQuantity, carIndex, false);
 	Route tempRoute = route.capture();                         // 抓取current指针后的路径
 	vector<Customer*> tempCust = tempRoute.getAllCustomer();   // 获得current指针后的所有顾客
 	vector<Customer*>::iterator custIter;
 	for(custIter = tempCust.begin(); custIter < tempCust.end(); custIter++) {
-		newCar->insertAtRear(**custIter);
+		newCar.insertAtRear(**custIter);
 	}
 	deleteCustomerSet(tempCust);
-	return *newCar;
+	return newCar;
 }
 
 
@@ -201,6 +204,7 @@ void Car::updateState(float time){
 		// 在这里更新货车的nearestDepartureTime
 		if(time == nextArriveTime) {
 			// 若当前时间正好是状态改变的时间，则状态改变
+			travelDistance += nextArriveTime - nearestDepatureTime;   // 更新travelDistance
 			route.moveForward();   // 执行服务，更改当前驻点
 			Customer currentPos = route.currentPos();  // 当前驻点
 			route.currentPos().arrivedTime = time;     // 更新当前顾客的到达时间
@@ -337,7 +341,9 @@ int Car::computeScore(Matrix<int> transformMatrix){
 		int frontPos, backPos;
 		frontPos = *(intIter);
 		backPos = *(intIter+1);
-		score += transformMatrix.getElement(frontPos, backPos);
-	}
+        if(frontPos !=0 && backPos !=0) {
+		    score += transformMatrix.getElement(frontPos, backPos);
+        }
+    }
 	return score;
 }
